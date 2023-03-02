@@ -1,0 +1,120 @@
+Q.1 A)
+mysql> Create Database SportDb_27;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> Use SportDB_27;
+Database changed
+mysql> Create Table Team(team_id int PRIMARY KEY, team_name varchar(20));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> Create Table Game(game_id int PRIMARY KEY, game_name varchar(20));
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> Create Table Play(play_id int PRIMARY KEY,
+    -> t_id1 int,
+    -> FOREIGN KEY(t_id1) REFERENCES Team(team_id),
+    -> t_id2 int,
+    -> FOREIGN KEY(t_id2) REFERENCES Team(team_id),
+    -> g_id int,
+    -> FOREIGN KEY(g_id) REFERENCES Game(game_id),
+    -> p_date datetime,
+    -> winner int);
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> Describe Play;
++---------+----------+------+-----+---------+-------+
+| Field   | Type     | Null | Key | Default | Extra |
++---------+----------+------+-----+---------+-------+
+| play_id | int      | NO   | PRI | NULL    |       |
+| t_id1   | int      | YES  | MUL | NULL    |       |
+| t_id2   | int      | YES  | MUL | NULL    |       |
+| g_id    | int      | YES  | MUL | NULL    |       |
+| p_date  | datetime | YES  |     | NULL    |       |
+| winner  | int      | YES  |     | NULL    |       |
++---------+----------+------+-----+---------+-------+
+6 rows in set (0.06 sec)
+
+mysql> Insert Into Team VALUE(1, 'Super');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> Insert Into Team VALUE(2, 'Kings');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> Insert Into Team VALUE(3, 'Giants');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> Insert Into Team VALUE(4, 'Heros');
+Query OK, 1 row affected (0.04 sec)
+
+mysql>
+mysql>
+mysql> Insert Into Game VALUE(1, 'Tennis');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> Insert Into Game VALUE(2, 'Chess');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> Insert Into Game VALUE(3, 'Badminton');
+Query OK, 1 row affected (0.04 sec)
+
+mysql>
+mysql>
+mysql> Insert Into Play VALUE(1, 1, 2, 1, '2021/11/23', 1);
+Query OK, 1 row affected, 1 warning (0.04 sec)
+
+mysql> Insert Into Play VALUE(2, 1, 2, 2, '2021/11/24', 1);
+Query OK, 1 row affected, 1 warning (0.04 sec)
+
+mysql> Insert Into Play VALUE(3, 2, 3, 2, '2021/11/24', 3);
+Query OK, 1 row affected, 1 warning (0.04 sec)
+
+mysql> Insert Into Play VALUE(4, 2, 4, 3, '2021/11/24', 4);
+Query OK, 1 row affected, 1 warning (0.04 sec)
+
+
+Q.2 a)
+mysql> Select team_name FROM Team WHERE team_id NOT IN(Select Winner FROM Play);
++-----------+
+| team_name |
++-----------+
+| Kings     |
++-----------+
+1 row in set (0.04 sec)
+
+Q.2 b)
+mysql> Select team_name FROM Team WHERE team_id IN(Select winner FROM Play WHERE g_id=(Select game_id FROM Game WHERE game_name='Chess'));
++-----------+
+| team_name |
++-----------+
+| Super     |
+| Giants    |
++-----------+
+2 rows in set (0.04 sec)
+
+Q.3 a)
+mysql> Select winner, count(*) FROM play GROUP BY winner;
++--------+----------+
+| winner | count(*) |
++--------+----------+
+|      1 |        2 |
+|      3 |        1 |
+|      4 |        1 |
++--------+----------+
+3 rows in set (0.04 sec)
+
+Q.3 b)
+mysql> Create View winner AS
+    -> Select play_id, game_name, team_name FROM Play, Game, Team
+    -> WHERE game_id=g_id AND team_id=winner;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> Select *from Winner;
++---------+-----------+-----------+
+| play_id | game_name | team_name |
++---------+-----------+-----------+
+|       1 | Tennis    | Super     |
+|       2 | Chess     | Super     |
+|       3 | Chess     | Giants    |
+|       4 | Badminton | Heros     |
++---------+-----------+-----------+
+4 rows in set (0.04 sec)
